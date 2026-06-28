@@ -1,0 +1,16 @@
+[Unit]
+Description=FreeFire Shop Helper API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mehdi
+WorkingDirectory=/home/mehdi/freefire_shop_helper
+EnvironmentFile=/home/mehdi/freefire_shop_helper/config.env
+ExecStart=/home/mehdi/freefire_shop_helper/.venv/bin/python -m uvicorn api_server:app --host 0.0.0.0 --port 8088
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
