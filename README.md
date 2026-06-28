@@ -10,6 +10,7 @@ This bot runs on a Raspberry Pi (or similar Linux/macOS/Windows machines) and au
 - `config.json`: Telegram bot configuration.
 - `config.env.example`: Helper API configuration template. Copy it to `config.env` locally.
 - `scripts/install_helper.sh`: Raspberry Pi installer for the helper API systemd service.
+- `scripts/setup_reverse_ssh.sh`: Reverse SSH tunnel installer so the Raspberry Pi can be reached through a server.
 
 ## Helper API Quick Install on Raspberry Pi
 
@@ -59,6 +60,43 @@ curl -X POST "http://127.0.0.1:8088/freefire/player/check" \
 ```
 
 For Keenetic/public access, forward your public helper hostname to Raspberry Pi port `8088`. Keep noVNC/browser/captcha on a separate hostname or port if possible.
+
+## Reverse SSH Access for Remote Debugging
+
+This lets the Raspberry Pi keep an outbound SSH tunnel open to a server. You do not need to expose Raspberry Pi port `22` on the modem.
+
+Run on the Raspberry Pi:
+
+```bash
+cd /home/mehdi/freefire_shop_helper
+git pull origin codex/helper-api-install
+chmod +x scripts/setup_reverse_ssh.sh
+./scripts/setup_reverse_ssh.sh
+```
+
+The script prints a public key and a quick `ssh root@SERVER ...` command. Run that printed command once from the Raspberry Pi terminal to install the key on the remote server.
+
+Then run:
+
+```bash
+cd /home/mehdi/freefire_shop_helper
+INSTALL_SERVICE=1 ./scripts/setup_reverse_ssh.sh
+systemctl status freefire-reverse-ssh --no-pager
+```
+
+Default remote server settings:
+
+- Remote server: `root@38.54.84.173`
+- Remote SSH port: `22`
+- Reverse tunnel port on server: `2222`
+
+After the service is running, someone with SSH access to the remote server can connect back to the Raspberry Pi from the server with:
+
+```bash
+ssh -p 2222 mehdi@127.0.0.1
+```
+
+No passwords, API keys, or Telegram tokens are committed to GitHub.
 
 ## Helper API Endpoints
 
