@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets / local config
+config.env
+.env
+*.env
+
+# Runtime logs and screenshots
+*.log
+*.png
+*.jpg
+*.jpeg
+*.webp
+api_requests.json
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
