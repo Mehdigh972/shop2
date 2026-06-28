@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 from playwright.sync_api import sync_playwright
 from playwright_stealth import stealth_sync
@@ -69,16 +70,26 @@ class GarenaTopupSession:
         """
         self.player_id = player_id
         auth_errors = []
+        auth_nicknames = []
 
         def capture_auth_response(response):
             if "/api/auth/player_id_login" not in response.url:
                 return
+            try:
+                body = response.text()
+            except Exception:
+                body = ""
             if response.status >= 400:
-                try:
-                    body = response.text()[:500]
-                except Exception:
-                    body = ""
-                auth_errors.append(f"Shop2Game player_id_login returned HTTP {response.status}. {body}")
+                auth_errors.append(f"Shop2Game player_id_login returned HTTP {response.status}. {body[:500]}")
+                return
+            try:
+                data = json.loads(body)
+            except Exception:
+                data = {}
+            nickname = str(data.get("nickname") or "").strip()
+            if nickname:
+                auth_nicknames.append(nickname)
+                logging.info("Extracted nickname from player_id_login response.")
 
         self.page.on("response", capture_auth_response)
 
@@ -190,6 +201,10 @@ class GarenaTopupSession:
         if auth_errors:
             raise Exception("Captcha or verification required: " + auth_errors[-1])
 
+        if auth_nicknames:
+            self.nickname = auth_nicknames[-1]
+            return self.nickname
+
         # Step 4: Extract the nickname / verify success.
         nickname_selectors = [
             '.player-name',
@@ -202,6 +217,8 @@ class GarenaTopupSession:
             '#player-name',
             '#nickname',
             '.profile_nickname',
+            'text=/اسم المستخدم:/',
+            'text=/Username:/',
         ]
 
         nickname = None
@@ -211,6 +228,8 @@ class GarenaTopupSession:
                 if el.is_visible():
                     nickname = el.inner_text().strip()
                     if nickname:
+                        if ':' in nickname:
+                            nickname = nickname.split(':', 1)[1].strip()
                         logging.info(f"Extracted nickname: {nickname} using selector: {selector}")
                         break
             except Exception:
