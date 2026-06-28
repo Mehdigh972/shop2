@@ -11,7 +11,7 @@ if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
 fi
 
 sudo apt update
-sudo apt install -y python3-venv python3-full python3-pip chromium-browser xvfb ca-certificates
+sudo apt install -y python3-venv python3-full python3-pip chromium-browser xvfb ca-certificates rsync openssl
 
 mkdir -p "$APP_DIR"
 rsync -a --exclude .git --exclude .venv --exclude config.env ./ "$APP_DIR"/
