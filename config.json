@@ -1,0 +1,9 @@
+{
+  "telegram_bot_token": "7147615339:AAHzGlOCttCCjxOFALdZeALZTFEP66H6BNA",
+  "authorized_admin_ids": [
+    495100171
+  ],
+  "garena_domain": "shop2game.com",
+  "headless": true,
+  "chromium_executable_path": "/usr/bin/chromium-browser"
+}
